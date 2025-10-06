@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Biaya Desain Arsitek</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icon untuk tab browser -->
+    <link rel="icon" href="https://placehold.co/32x32/ff3e3e/ffffff?text=HK" type="image/png">
+    <!-- Memuat library html2canvas & jsPDF untuk unduh sebagai PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Menggunakan font Inter sebagai font utama */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- START: Dark Mode Variables --- */
+        :root {
+            --bg-primary: #f9fafb; /* bg-gray-50 */
+            --bg-secondary: #ffffff; /* bg-white */
+            --bg-tertiary: #f3f4f6; /* bg-gray-100 */
+            --bg-accent: #ff3e3e;
+            --text-primary: #1f2937; /* text-gray-800 */
+            --text-secondary: #665f5f; /* custom color */
+            --text-accent: #ff3e3e;
+            --text-on-accent: #ffffff;
+            --border-primary: #e5e7eb; /* border-gray-200 */
+            --invoice-bg: #374151; /* bg-gray-700 */
+            --invoice-text: #ffffff;
+            --invoice-input-bg: #4b5563; /* bg-gray-600 */
+            --project-info-bg: #374151; /* bg-gray-700 */
+            --project-info-text: #ffffff;
+        }
+
+        html[data-theme='dark'] {
+            --bg-primary: #111827; /* bg-gray-900 */
+            --bg-secondary: #1f2937; /* bg-gray-800 */
+            --bg-tertiary: #374151; /* bg-gray-700 */
+            --text-primary: #f9fafb; /* text-gray-50 */
+            --text-secondary: #d1d5db; /* text-gray-300 */
+            --border-primary: #374151; /* border-gray-700 */
+            --invoice-bg: #1f2937;
+            --invoice-input-bg: #374151;
+            --project-info-bg: #1f2937;
+        }
+        /* --- END: Dark Mode Variables --- */
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+        }
+
+        /* Style untuk transisi yang mulus */
+        .transition-all {
+            transition: all 0.3s ease-in-out;
+        }
+        /* Menyembunyikan elemen secara default */
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        /* Menampilkan elemen dengan animasi fade-in dan slide-up */
+        .visible-section {
+            display: block;
+            animation: fadeInSlideUp 0.5s forwards;
+        }
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Custom checkbox style dengan warna aksen baru */
+        .payment-term-checkbox {
+            appearance: none;
+            background-color: var(--bg-secondary);
+            border: 1px solid #ccc;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+        }
+        .payment-term-checkbox:checked {
+            background-color: var(--bg-accent);
+            border-color: var(--bg-accent);
+        }
+        .payment-term-checkbox:checked::after {
+            content: '✔';
+            position: absolute;
+            color: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+        }
+        /* Style untuk card paket yang dipilih dengan warna aksen baru */
+        .selected-package {
+            border-color: var(--bg-accent) !important;
+            box-shadow: 0 0 0 3px rgba(255, 62, 62, 0.3);
+        }
+        
+        /* --- START: Theme Toggle CSS --- */
+        #theme-toggle-bg {
+            background-color: #d1d5db; /* gray-300 */
+            transition: background-color 0.3s ease;
+        }
+        html[data-theme='dark'] #theme-toggle-bg {
+            background-color: #4b5563; /* gray-600 */
+        }
+        #theme-toggle:checked + #theme-toggle-bg {
+            background-color: var(--bg-accent);
+        }
+        #theme-toggle:checked + #theme-toggle-bg + .dot {
+            transform: translateX(24px);
+        }
+        /* --- END: Theme Toggle CSS --- */
+
+        /* Class to hide elements from PDF */
+        .no-pdf {
+            /* This will be handled by JS during PDF generation */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Kop Surat untuk PDF (tersembunyi di halaman web) -->
+    <div id="pdf-header" class="hidden p-8">
+        <div class="text-right">
+            <h1 class="text-2xl font-bold text-gray-800">Hasta Kencana Design Partners</h1>
+            <p class="text-sm text-[#665f5f]">Jl. Riung Hegar Utama, Cipamokolan, Bandung</p>
+            <p class="text-sm text-[#665f5f]">IG. @hasta.kencana / Wa. 0822-4337-4838 / 0878-3480-0777</p>
+        </div>
+        <div class="mt-4 border-b-2 border-[#ff3e3e]"></div>
+    </div>
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-6xl">
+        
+        <!-- Judul Aplikasi dan Theme Toggle -->
+        <header class="flex justify-between items-center mb-8 md:mb-12">
+             <!-- Theme Toggle Switch -->
+            <div class="flex items-center">
+                <label for="theme-toggle" class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="theme-toggle" class="sr-only">
+                        <div id="theme-toggle-bg" class="block w-14 h-8 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                    </div>
+                </label>
+            </div>
+            <div class="text-right">
+                <h1 class="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]">Hasta Kencana Desain Partners</h1>
+                <p class="mt-2 text-md sm:text-lg text-[var(--text-secondary)]">Estimasi biaya Desain</p>
+            </div>
+        </header>
+
+        <main id="app" class="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-2xl shadow-lg">
+
+            <!-- Langkah 1: Pilihan Paket Desain -->
+            <section id="package-selection" class="visible-section">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-[var(--text-primary)]">1. Pilih Satu atau Lebih Paket Desain</h2>
+                <div id="package-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <!-- Paket akan ditambahkan di sini oleh JavaScript -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="next-to-details-btn" class="py-3 px-8 rounded-lg bg-[var(--bg-accent)] text-[var(--text-on-accent)] hover:opacity-90 font-semibold transition-all shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        Lanjut
+                    </button>
+                </div>
+            </section>
+
+            <!-- Langkah 2: Formulir Detail Multi-Paket -->
+            <section id="multi-details-form" class="hidden-section">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-[var(--text-primary)]">2. Masukkan Detail Proyek</h2>
+                <div id="details-container" class="space-y-8">
+                    <!-- Formulir dinamis untuk setiap paket akan muncul di sini -->
+                </div>
+                <div class="flex items-center gap-4 mt-8">
+                    <button id="back-to-packages" class="w-full text-center py-3 px-4 rounded-lg bg-gray-200 text-[#665f5f] hover:bg-gray-300 font-semibold transition-all">
+                       Kembali
+                   </button>
+                   <button id="calculate-all-btn" class="w-full text-center py-3 px-4 rounded-lg bg-[var(--bg-accent)] text-[var(--text-on-accent)] hover:opacity-90 font-semibold transition-all shadow-md">
+                       Hitung Biaya
+                   </button>
+               </div>
+            </section>
+
+            <!-- Langkah 3: Hasil Perhitungan -->
+            <section id="summary" class="hidden-section">
+                 <!-- Wrapper untuk konten yang akan diunduh -->
+                <div id="offer-content" class="bg-[var(--bg-secondary)] p-2">
+                    
+                    <!-- Informasi Proyek -->
+                    <div id="project-info" class="mb-6 space-y-2 flex flex-col items-end">
+                        <div class="flex items-center gap-2 w-full max-w-md">
+                            <label for="project-name" class="w-32 text-right text-sm">Nama Proyek:</label>
+                            <input type="text" id="project-name" class="flex-1 px-3 py-2 border-none rounded-md bg-[var(--project-info-bg)] text-[var(--project-info-text)] text-right">
+                        </div>
+                         <div class="flex items-center gap-2 w-full max-w-md">
+                            <label for="project-number" class="w-32 text-right text-sm">Nomor Proyek:</label>
+                            <input type="text" id="project-number" class="flex-1 px-3 py-2 border-none rounded-md bg-[var(--project-info-bg)] text-[var(--project-info-text)] text-right">
+                        </div>
+                         <div class="flex items-center gap-2 w-full max-w-md">
+                            <label for="project-address" class="w-32 text-right text-sm">Alamat Proyek:</label>
+                            <input type="text" id="project-address" class="flex-1 px-3 py-2 border-none rounded-md bg-[var(--project-info-bg)] text-[var(--project-info-text)] text-right">
+                        </div>
+                         <div class="flex items-center gap-2 w-full max-w-md">
+                            <label for="project-owner" class="w-32 text-right text-sm">Pemilik:</label>
+                            <input type="text" id="project-owner" class="flex-1 px-3 py-2 border-none rounded-md bg-[var(--project-info-bg)] text-[var(--project-info-text)] text-right">
+                        </div>
+                    </div>
+
+                    <h2 class="text-2xl font-semibold mb-6 text-left text-[var(--text-primary)]">3. Ringkasan Penawaran</h2>
+
+                    <!-- Rincian Per Paket -->
+                    <div id="summary-breakdown" class="space-y-6 mb-6">
+                        <!-- Rincian setiap paket akan ditampilkan di sini -->
+                    </div>
+
+                    <!-- Perhitungan Total Keseluruhan -->
+                    <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mb-6">
+                         <div class="border-t border-[var(--border-primary)] pt-4">
+                            <div class="text-right space-y-2">
+                                <p class="text-lg text-[var(--text-secondary)]">Subtotal Biaya Desain</p>
+                                <p id="summary-subtotal" class="text-2xl font-bold text-[var(--text-primary)]"></p>
+
+                                <!-- Diskon dan Kode Redeem (Responsive) -->
+                                <div id="discount-row" class="flex flex-wrap justify-end items-center gap-x-2 gap-y-1 pt-4">
+                                    <label for="discount-percent" class="w-full sm:w-auto text-left sm:text-right text-sm text-[var(--text-secondary)]">Diskon:</label>
+                                    <div class="flex items-center gap-2 w-full sm:w-48">
+                                        <input type="number" id="discount-percent" class="flex-grow text-right px-2 py-1 border rounded-md" placeholder="0">
+                                        <span class="font-semibold">%</span>
+                                    </div>
+                                    <span id="discount-amount" class="w-full sm:w-52 text-right text-sm text-[var(--text-accent)]">(- Rp 0)</span>
+                                </div>
+                                <div id="redeem-row" class="flex flex-wrap justify-end items-center gap-x-2 gap-y-1 pt-2">
+                                    <label for="redeem-code" class="w-full sm:w-auto text-left sm:text-right text-sm text-[var(--text-secondary)]">Kode Redeem:</label>
+                                    <input type="number" id="redeem-code" class="w-full sm:w-48 text-right px-2 py-1 border rounded-md" placeholder="0">
+                                    <span id="redeem-amount-display" class="w-full sm:w-52 text-right text-sm text-[var(--text-accent)]">(- Rp 0)</span>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <p class="text-lg text-[var(--text-secondary)]">Total Biaya Akhir</p>
+                                    <p id="summary-total" class="text-3xl sm:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="term-and-invoice-container">
+                        <!-- Term of Payment -->
+                        <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mb-6">
+                            <h3 class="text-xl font-semibold mb-4 text-[var(--text-primary)] text-left italic">Term Of Payment</h3>
+                            <div id="payment-terms-container" class="space-y-3 max-w-md mx-auto">
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" data-amount="0" class="payment-term-checkbox">
+                                        <span class="text-sm">DP 30%</span>
+                                    </label>
+                                    <span id="summary-dp" class="font-semibold text-[var(--text-primary)]">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" data-amount="0" class="payment-term-checkbox">
+                                        <span class="text-sm">Termin 1 45%</span>
+                                    </label>
+                                    <span id="summary-termin1" class="font-semibold text-[var(--text-primary)]">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" data-amount="0" class="payment-term-checkbox">
+                                        <span class="text-sm">Termin 2 25%</span>
+                                    </label>
+                                    <span id="summary-termin2" class="font-semibold text-[var(--text-primary)]">Rp 0</span>
+                                </div>
+                                 <div class="border-t border-gray-300 !mt-4 !mb-2"></div>
+                                <div class="flex justify-between items-center font-bold text-lg">
+                                    <span>Sisa Tagihan</span>
+                                    <span id="summary-sisa-tagihan" class="text-[var(--text-accent)]">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kolom Invoice -->
+                        <div id="invoice-container" class="bg-[var(--invoice-bg)] text-[var(--invoice-text)] rounded-xl p-6 mb-6">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4 sm:gap-0">
+                                <h3 class="text-xl font-semibold text-left">Invoice / Tagihan</h3>
+                                <div class="w-full sm:w-auto text-right text-sm space-y-2">
+                                    <div class="flex flex-wrap justify-end items-center gap-x-2 gap-y-0">
+                                        <label for="invoice-date" class="w-full sm:w-auto text-left sm:text-right">Tanggal:</label>
+                                        <input type="text" id="invoice-date" placeholder="DD/MM/YYYY" class="w-full sm:w-32 bg-[var(--invoice-input-bg)] text-white px-2 py-2 rounded-md text-right">
+                                    </div>
+                                    <div class="flex flex-wrap justify-end items-center gap-x-2 gap-y-0">
+                                        <label for="invoice-number" class="w-full sm:w-auto text-left sm:text-right">Nomor:</label>
+                                        <input type="text" id="invoice-number" placeholder="INV/..." class="w-full sm:w-32 bg-[var(--invoice-input-bg)] text-white px-2 py-2 rounded-md text-right">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <label for="invoice-item-select" class="block text-sm no-pdf">Pilih item tagihan:</label>
+                                <select id="invoice-item-select" class="w-full p-2 rounded-md bg-[var(--invoice-input-bg)] border border-gray-500 no-pdf">
+                                    <option value="">-- Pilih Tahap Pembayaran --</option>
+                                </select>
+                                <div id="invoice-details" class="mt-4 bg-gray-800 p-4 rounded-lg text-center">
+                                    <p>Pilih item untuk melihat detail tagihan.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informasi Pembayaran -->
+                        <div id="payment-info-container" class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mb-8 text-center">
+                            <h3 class="text-xl font-semibold mb-4 text-[var(--text-primary)]">Informasi Pembayaran</h3>
+                            <div class="space-y-2">
+                                <p><span class="font-semibold">Nama Bank:</span> BCA</p>
+                                <p><span class="font-semibold">Nama Rekening:</span> Handoyo Dwi Prabowo</p>
+                                <p><span class="font-semibold">No. Rekening:</span> 775-139-0398</p>
+                                <p class="mt-4 text-sm text-[var(--text-secondary)]">Silakan konfirmasi setelah melakukan pembayaran.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
+                    <button id="recalculate-btn" class="w-full sm:w-auto py-3 px-6 rounded-lg bg-[#665f5f] text-white hover:bg-[#4d4a4a] font-semibold transition-all shadow-md">
+                        Hitung Ulang
+                    </button>
+                    <button id="download-offer-btn" class="w-full sm:w-auto py-3 px-6 rounded-lg bg-[var(--bg-accent)] text-[var(--text-on-accent)] hover:opacity-90 font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3> 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Unduh Penawaran PDF
+                    </button>
+                     <button id="download-invoice-btn" class="w-full sm:w-auto py-3 px-6 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3> 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Unduh Invoice PDF
+                    </button>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-8 text-sm text-[var(--text-secondary)]">
+            <p>&copy; 2025 Hasta Kencana Desain Partners. All Rights Reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- START: Theme Toggle Logic ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = `M12 3v1m0 16v1m8.66-12.66l-.7.7M4.04 19.96l-.7.7M21 12h-1M4 12H3m16.96 8.66l-.7-.7M4.74 4.74l-.7-.7M12 18a6 6 0 100-12 6 6 0 000 12z`;
+            const moonIcon = `M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z`;
+            
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.checked = false;
+                }
+            };
+
+            themeToggle.addEventListener('change', () => {
+                const theme = themeToggle.checked ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+                applyTheme(theme);
+            });
+
+            // Apply saved theme or system preference on load
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (prefersDark) {
+                applyTheme('dark');
+            }
+            // --- END: Theme Toggle Logic ---
+
+
+            // Data Paket Desain
+            const packages = [
+                 {
+                    name: 'Desain Konsep (Paket)',
+                    price: 1800000,
+                    type: 'fixed_package',
+                    features: ['Harga satuan per item kebutuhan'],
+                    textColor: 'text-[var(--text-accent)]'
+                },
+                {
+                    name: 'Desain Konsep',
+                    price: 65000,
+                    type: 'per_m2',
+                    features: ['Visual Site plan', 'Denah', '3D Visual Exterior', 'Exclude: Gambar kerja di luar denah'],
+                    textColor: 'text-[var(--text-accent)]'
+                },
+                {
+                    name: 'Desain Prarencana',
+                    price: 130000,
+                    type: 'per_m2',
+                    features: ['Semua di Paket Konsep', 'Gamker Siteplan', 'Tampak & Potongan', 'Visual 3D Dapur', 'Denah Titik Lampu & Stopkontak', 'Harga khusus >500 m²'],
+                    textColor: 'text-[var(--text-accent)]'
+                },
+                {
+                    name: 'Desain Engineering Development (DED)',
+                    price: 215000,
+                    type: 'per_m2',
+                    features: ['Semua di Paket Pra Rencana', 'Analisa & Detail Struktur', 'Denah Pondasi, Kolom, Pembalokan', 'Tabel Kusen & Pola Lantai', 'Detail Arsitektural', 'Harga khusus >500 m²'],
+                    textColor: 'text-[var(--text-accent)]'
+                },
+                {
+                    name: 'RAB Perhitungan BOQ',
+                    price: 18000,
+                    type: 'per_m2',
+                    minArea: 100,
+                    features: ['Uraian & Volume Pekerjaan', 'Rekapitulasi Harga', 'Jadwal Pelaksanaan', 'Note: Min. 100 m², Exclude AHS'],
+                    textColor: 'text-[var(--text-accent)]'
+                }
+            ];
+
+            let selectedPackages = [];
+            let currentSubtotal = 0;
+            let currentTotal = 0;
+
+            const packageList = document.getElementById('package-list');
+            const packageSelectionSection = document.getElementById('package-selection');
+            const multiDetailsFormSection = document.getElementById('multi-details-form');
+            const summarySection = document.getElementById('summary');
+            const paymentTermCheckboxes = document.querySelectorAll('.payment-term-checkbox');
+
+            const nextToDetailsBtn = document.getElementById('next-to-details-btn');
+            const calculateAllBtn = document.getElementById('calculate-all-btn');
+            const recalculateBtn = document.getElementById('recalculate-btn');
+            const backToPackagesBtn = document.getElementById('back-to-packages');
+            const downloadOfferBtn = document.getElementById('download-offer-btn');
+            const downloadInvoiceBtn = document.getElementById('download-invoice-btn');
+            const detailsContainer = document.getElementById('details-container');
+            const invoiceItemSelect = document.getElementById('invoice-item-select');
+            const invoiceDetails = document.getElementById('invoice-details');
+
+            const discountPercentInput = document.getElementById('discount-percent');
+            const redeemCodeInput = document.getElementById('redeem-code');
+
+            const formatCurrency = (amount) => {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+            };
+
+            const togglePackageSelection = (index, card) => {
+                const packageIndexInSelection = selectedPackages.findIndex(p => p.originalIndex === index);
+                if (packageIndexInSelection > -1) {
+                    selectedPackages.splice(packageIndexInSelection, 1);
+                    card.classList.remove('selected-package');
+                } else {
+                    selectedPackages.push({ ...packages[index], originalIndex: index });
+                    card.classList.add('selected-package');
+                }
+                nextToDetailsBtn.disabled = selectedPackages.length === 0;
+            };
+            
+            const renderPackages = () => {
+                packageList.innerHTML = '';
+                packages.forEach((pkg, index) => {
+                    const card = document.createElement('div');
+                    card.dataset.packageIndex = index;
+                    card.className = `p-6 rounded-xl border-2 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-[var(--bg-secondary)] border-[var(--border-primary)] flex flex-col`;
+                    
+                    let featuresHTML = pkg.features.map(feature => `<li class="flex items-start"><svg class="w-4 h-4 mr-2 ${pkg.textColor} flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>${feature}</span></li>`).join('');
+                    const priceUnit = pkg.type === 'fixed_package' ? '/ Paket' : '/ m²';
+
+                    card.innerHTML = `
+                        <div class="flex-grow">
+                            <h3 class="text-lg sm:text-xl font-bold ${pkg.textColor}">${pkg.name}</h3>
+                            <p class="flex flex-wrap items-baseline gap-x-1 my-3 ${pkg.textColor}">
+                                <span class="text-2xl lg:text-3xl font-bold">${formatCurrency(pkg.price)}</span>
+                                <span class="text-base font-normal">${priceUnit}</span>
+                            </p>
+                            <ul class="space-y-2 text-sm mb-6">
+                                ${featuresHTML}
+                            </ul>
+                        </div>
+                    `;
+                    packageList.appendChild(card);
+                });
+            };
+
+            packageList.addEventListener('click', (event) => {
+                const card = event.target.closest('[data-package-index]');
+                if (card) {
+                    const index = parseInt(card.dataset.packageIndex, 10);
+                    togglePackageSelection(index, card);
+                }
+            });
+
+            const showSection = (sectionToShow) => {
+                [packageSelectionSection, multiDetailsFormSection, summarySection].forEach(section => {
+                    section.classList.remove('visible-section');
+                    section.classList.add('hidden-section');
+                });
+                sectionToShow.classList.remove('hidden-section');
+                sectionToShow.classList.add('visible-section');
+                window.scrollTo(0, 0);
+            };
+
+            const buildMultiDetailsForm = () => {
+                detailsContainer.innerHTML = '';
+                selectedPackages.forEach((pkg, formIndex) => {
+                    const formWrapper = document.createElement('div');
+                    formWrapper.className = 'bg-[var(--bg-tertiary)] p-6 rounded-xl border border-[var(--border-primary)]';
+                    let formHTML = `<h3 class="text-xl font-semibold mb-4 ${pkg.textColor}">${pkg.name}</h3>`;
+
+                    if (pkg.type === 'per_m2') {
+                        let noteHTML = '';
+                        if (pkg.minArea) {
+                            noteHTML += `<div class="text-sm bg-yellow-100 text-yellow-800 p-3 rounded-lg my-2">Catatan: Luas minimal untuk paket ini adalah ${pkg.minArea} m².</div>`;
+                        }
+                        if (pkg.name === 'Desain Prarencana') {
+                            noteHTML += `<div class="text-sm bg-blue-100 text-blue-800 p-3 rounded-lg my-2">Info: Harga menjadi ${formatCurrency(95000)}/m² untuk luasan di atas 500 m².</div>`;
+                        }
+                        if (pkg.name === 'Desain Engineering Development (DED)') {
+                            noteHTML += `<div class="text-sm bg-blue-100 text-blue-800 p-3 rounded-lg my-2">Info: Harga menjadi ${formatCurrency(195000)}/m² untuk luasan di atas 500 m².</div>`;
+                        }
+
+                        formHTML += `
+                            ${noteHTML}
+                            <label for="area-${formIndex}" class="block text-sm font-medium mb-2">Luas Area Bangunan (m²)</label>
+                            <input type="number" id="area-${formIndex}" data-package-index="${formIndex}" name="area" placeholder="Contoh: 100" class="w-full max-w-sm px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--text-accent)]" min="1">
+                            <p id="error-message-${formIndex}" class="hidden text-red-500 text-sm mt-2"></p>
+                        `;
+                    } else if (pkg.type === 'fixed_package') {
+                        formHTML += `
+                            <div class="max-w-xl">
+                                <div class="flex items-center gap-2 mb-2 px-1 text-sm font-medium">
+                                    <div class="flex-grow">Kebutuhan Desain</div>
+                                    <div class="w-20 text-center flex-shrink-0">Jumlah</div>
+                                    <div class="w-9 flex-shrink-0"></div>
+                                </div>
+                                <div id="requirements-list-${formIndex}" class="space-y-3 mb-4">
+                                    <div class="flex items-center gap-2 requirement-item">
+                                        <input type="text" placeholder="Ketik kebutuhan desain..." class="flex-grow px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--text-accent)]">
+                                        <input type="number" value="1" min="0" class="w-20 text-center px-2 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--text-accent)]">
+                                        <button class="remove-requirement-btn p-2 rounded-full bg-gray-200 hover:bg-red-500 hover:text-white transition-all">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button data-form-index="${formIndex}" class="add-requirement-btn w-full flex items-center justify-center text-sm py-2 px-4 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold transition-all">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    Tambah Baris
+                                </button>
+                            </div>
+                        `;
+                    }
+                    formWrapper.innerHTML = formHTML;
+                    detailsContainer.appendChild(formWrapper);
+                });
+            };
+            
+            detailsContainer.addEventListener('click', e => {
+                if (e.target.closest('.add-requirement-btn')) {
+                    const formIndex = e.target.closest('.add-requirement-btn').dataset.formIndex;
+                    const list = document.getElementById(`requirements-list-${formIndex}`);
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 requirement-item';
+                    div.innerHTML = `
+                        <input type="text" placeholder="Ketik kebutuhan desain..." class="flex-grow px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--text-accent)]">
+                        <input type="number" value="1" min="0" class="w-20 text-center px-2 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--text-accent)]">
+                        <button class="remove-requirement-btn p-2 rounded-full bg-gray-200 hover:bg-red-500 hover:text-white transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path></svg>
+                        </button>
+                    `;
+                    list.appendChild(div);
+                }
+                if (e.target.closest('.remove-requirement-btn')) {
+                    const item = e.target.closest('.requirement-item');
+                    if (item.parentElement.children.length > 1) {
+                        item.remove();
+                    }
+                }
+            });
+
+            const updateFinalTotal = () => {
+                const discountPercent = parseFloat(discountPercentInput.value) || 0;
+                const redeemAmount = parseFloat(redeemCodeInput.value) || 0;
+                const discountAmount = currentSubtotal * (discountPercent / 100);
+                
+                document.getElementById('discount-amount').textContent = `(- ${formatCurrency(discountAmount)})`;
+                document.getElementById('redeem-amount-display').textContent = `(- ${formatCurrency(redeemAmount)})`;
+
+                const finalTotal = currentSubtotal - discountAmount - redeemAmount;
+                currentTotal = finalTotal < 0 ? 0 : finalTotal;
+
+                document.getElementById('summary-total').textContent = formatCurrency(currentTotal);
+                calculateAndDisplayTerms(currentTotal);
+            };
+
+            const updateSisaTagihan = () => {
+                let totalPaid = 0;
+                paymentTermCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        totalPaid += parseFloat(checkbox.dataset.amount);
+                    }
+                });
+                const sisaTagihan = currentTotal - totalPaid;
+                document.getElementById('summary-sisa-tagihan').textContent = formatCurrency(sisaTagihan < 0 ? 0 : sisaTagihan);
+            };
+            
+            const calculateAndDisplayTerms = (total) => {
+                const terms = [
+                    { name: 'DP 30%', percent: 0.30, id: 'summary-dp' },
+                    { name: 'Termin 1 45%', percent: 0.45, id: 'summary-termin1' },
+                    { name: 'Termin 2 25%', percent: 0.25, id: 'summary-termin2' }
+                ];
+                
+                invoiceItemSelect.innerHTML = '<option value="">-- Pilih Tahap Pembayaran --</option>'; // Reset dropdown
+
+                terms.forEach((term, index) => {
+                    const amount = total * term.percent;
+                    document.getElementById(term.id).textContent = formatCurrency(amount);
+                    const checkbox = paymentTermCheckboxes[index];
+                    checkbox.dataset.amount = amount;
+                    
+                    // Populate invoice dropdown
+                    const option = document.createElement('option');
+                    option.value = amount;
+                    option.textContent = term.name;
+                    invoiceItemSelect.appendChild(option);
+                });
+                
+                paymentTermCheckboxes.forEach(cb => cb.checked = false);
+                updateSisaTagihan();
+                // Reset invoice selection
+                invoiceItemSelect.selectedIndex = 0;
+                invoiceDetails.innerHTML = '<p>Pilih item untuk melihat detail tagihan.</p>';
+            };
+
+            nextToDetailsBtn.addEventListener('click', () => {
+                if (selectedPackages.length > 0) {
+                    buildMultiDetailsForm();
+                    showSection(multiDetailsFormSection);
+                }
+            });
+
+            calculateAllBtn.addEventListener('click', () => {
+                let grandTotal = 0;
+                let allValid = true;
+
+                selectedPackages.forEach((pkg, formIndex) => {
+                    let cost = 0;
+                    if (pkg.type === 'per_m2') {
+                        const areaInput = document.getElementById(`area-${formIndex}`);
+                        const errorMsg = document.getElementById(`error-message-${formIndex}`);
+                        const area = parseFloat(areaInput.value);
+
+                        if (!area || area <= 0) {
+                            errorMsg.textContent = 'Harap masukkan luas area yang valid.';
+                            errorMsg.classList.remove('hidden');
+                            areaInput.classList.add('border-red-500');
+                            allValid = false;
+                            return;
+                        }
+                        errorMsg.classList.add('hidden');
+                        areaInput.classList.remove('border-red-500');
+
+                        let calculationArea = area;
+                        let price = pkg.price;
+                        
+                        if (pkg.name === 'Desain Prarencana' && area > 500) {
+                            price = 95000;
+                        }
+                        if (pkg.name === 'Desain Engineering Development (DED)' && area > 500) {
+                            price = 195000;
+                        }
+
+                        pkg.displayInput = `${area} m²`;
+                        if (pkg.minArea && area < pkg.minArea) {
+                            calculationArea = pkg.minArea;
+                            pkg.displayInput = `${area} m² (dihitung sebagai ${calculationArea} m²)`;
+                        }
+                        cost = calculationArea * price;
+                        pkg.calculationDetail = `${calculationArea} m² x ${formatCurrency(price)}`;
+                    } else if (pkg.type === 'fixed_package') {
+                        let totalQuantity = 0;
+                        const features = [];
+                        document.querySelectorAll(`#requirements-list-${formIndex} .requirement-item`).forEach(item => {
+                            const desc = item.querySelector('input[type="text"]').value.trim();
+                            const qty = parseInt(item.querySelector('input[type="number"]').value, 10) || 0;
+                            if (desc) features.push(desc);
+                            totalQuantity += qty;
+                        });
+                        cost = totalQuantity * pkg.price;
+                        pkg.displayInput = `${totalQuantity} Item`;
+                        pkg.dynamicFeatures = features.length > 0 ? features : ['Tidak ada rincian yang dimasukkan.'];
+                        pkg.calculationDetail = `${totalQuantity} item x ${formatCurrency(pkg.price)}`;
+                    }
+                    pkg.calculatedCost = cost;
+                    grandTotal += cost;
+                });
+
+                if (allValid) {
+                    currentSubtotal = grandTotal;
+                    renderSummary();
+                    updateFinalTotal();
+                    showSection(summarySection);
+                }
+            });
+
+            const renderSummary = () => {
+                const summaryContainer = document.getElementById('summary-breakdown');
+                summaryContainer.innerHTML = '';
+                
+                selectedPackages.forEach(pkg => {
+                    const features = pkg.dynamicFeatures || pkg.features;
+                    const featuresHTML = features.map(f => `<li>${f}</li>`).join('');
+                    const breakdownHTML = `
+                        <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                                <div>
+                                    <p class="text-sm">Paket Pilihan</p>
+                                    <p class="text-xl font-bold ${pkg.textColor}">${pkg.name}</p>
+                                </div>
+                                <div class="mt-2 sm:mt-0 sm:text-right">
+                                     <p class="text-sm">Detail & Biaya</p>
+                                     <p class="text-sm text-[var(--text-secondary)]">${pkg.calculationDetail}</p>
+                                     <p class="text-lg font-semibold text-[var(--text-primary)]">= ${formatCurrency(pkg.calculatedCost)}</p>
+                                </div>
+                            </div>
+                            <div class="border-t border-[var(--border-primary)] pt-4">
+                                <p class="text-sm">Kelengkapan Desain:</p>
+                                <ul class="list-disc list-inside mt-2 space-y-1">${featuresHTML}</ul>
+                            </div>
+                        </div>
+                    `;
+                    summaryContainer.innerHTML += breakdownHTML;
+                });
+
+                document.getElementById('summary-subtotal').textContent = formatCurrency(currentSubtotal);
+                discountPercentInput.value = '';
+                redeemCodeInput.value = '';
+            };
+
+            invoiceItemSelect.addEventListener('change', (e) => {
+                const selectedValue = e.target.value;
+                if (selectedValue) {
+                    const selectedText = e.target.options[e.target.selectedIndex].text;
+                    invoiceDetails.innerHTML = `
+                        <div class="w-full">
+                            <p class="text-lg text-left">Tagihan untuk: <span class="font-bold">${selectedText}</span></p>
+                            <p class="text-2xl font-bold mt-2 text-right">${formatCurrency(selectedValue)}</p>
+                        </div>
+                    `;
+                } else {
+                    invoiceDetails.innerHTML = '<p>Pilih item untuk melihat detail tagihan.</p>';
+                }
+            });
+
+            paymentTermCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateSisaTagihan));
+            discountPercentInput.addEventListener('input', updateFinalTotal);
+            redeemCodeInput.addEventListener('input', updateFinalTotal);
+            
+            const downloadPdf = async (type) => {
+                const button = type === 'offer' ? downloadOfferBtn : downloadInvoiceBtn;
+                const offerContent = document.getElementById('offer-content');
+                const header = document.getElementById('pdf-header');
+                const btnOriginalText = button.innerHTML;
+                button.innerHTML = '<span>Mempersiapkan PDF...</span>';
+                button.disabled = true;
+
+                // --- START: PDF Theme Fix ---
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                // Temporarily switch to light mode for PDF generation
+                if (currentTheme === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                // --- END: PDF Theme Fix ---
+
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.width = offerContent.offsetWidth + 'px';
+                
+                const clonedHeader = header.cloneNode(true);
+                clonedHeader.classList.remove('hidden');
+                const clonedContent = offerContent.cloneNode(true);
+                
+                // Replace input fields with static divs for better PDF rendering
+                const projectInfoIds = ['project-name', 'project-number', 'project-address', 'project-owner'];
+                projectInfoIds.forEach(id => {
+                    const originalInput = document.getElementById(id);
+                    const clonedInput = clonedContent.querySelector(`#${id}`);
+                    if (clonedInput) {
+                        const staticDiv = document.createElement('div');
+                        staticDiv.className = clonedInput.className; // Copy classes
+                        staticDiv.style.height = originalInput.offsetHeight + 'px'; // Match height
+                        staticDiv.style.display = 'flex';
+                        staticDiv.style.alignItems = 'center';
+                        staticDiv.style.justifyContent = 'flex-end';
+                        staticDiv.textContent = originalInput.value || ' '; // Use value, or a space to maintain height
+                        clonedInput.parentNode.replaceChild(staticDiv, clonedInput);
+                    }
+                });
+
+                const invoiceInfoIds = ['invoice-date', 'invoice-number'];
+                invoiceInfoIds.forEach(id => {
+                    const originalInput = document.getElementById(id);
+                    const clonedInput = clonedContent.querySelector(`#${id}`);
+                    if (clonedInput) {
+                        const staticDiv = document.createElement('div');
+                        staticDiv.className = clonedInput.className; // Copy classes
+                        staticDiv.style.height = originalInput.offsetHeight + 'px';
+                        staticDiv.style.display = 'flex';
+                        staticDiv.style.alignItems = 'center';
+                        staticDiv.style.justifyContent = 'flex-end';
+                        staticDiv.textContent = originalInput.value || ' ';
+                        clonedInput.parentNode.replaceChild(staticDiv, clonedInput);
+                    }
+                });
+                
+                const discountValue = parseFloat(discountPercentInput.value) || 0;
+                const redeemValue = parseFloat(redeemCodeInput.value) || 0;
+
+                if (discountValue === 0) {
+                    const discountRow = clonedContent.querySelector('#discount-row');
+                    if (discountRow) discountRow.style.display = 'none';
+                }
+                if (redeemValue === 0) {
+                    const redeemRow = clonedContent.querySelector('#redeem-row');
+                    if (redeemRow) redeemRow.style.display = 'none';
+                }
+
+                const nonPdfElements = clonedContent.querySelectorAll('.no-pdf');
+                nonPdfElements.forEach(el => el.style.display = 'none');
+
+                if (type === 'offer') {
+                    const termAndInvoiceContainer = clonedContent.querySelector('#term-and-invoice-container');
+                    if(termAndInvoiceContainer) termAndInvoiceContainer.style.display = 'none';
+                }
+
+                pdfContainer.appendChild(clonedHeader);
+                pdfContainer.appendChild(clonedContent);
+                document.body.appendChild(pdfContainer);
+
+                try {
+                    const canvas = await html2canvas(pdfContainer, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+                    const imgData = canvas.toDataURL('image/png');
+                    const { jsPDF } = window.jspdf;
+                    
+                    const pdfWidth = 210; 
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfWidth, pdfHeight] });
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    const fileName = type === 'offer' ? 'penawaran-hasta-kencana.pdf' : 'invoice-hasta-kencana.pdf';
+                    pdf.save(fileName);
+                } catch (err) {
+                    console.error('Gagal membuat PDF:', err);
+                } finally {
+                    document.body.removeChild(pdfContainer);
+                    button.innerHTML = btnOriginalText;
+                    button.disabled = false;
+                     // Restore original theme
+                    if (currentTheme === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    }
+                }
+            };
+            
+            downloadOfferBtn.addEventListener('click', () => downloadPdf('offer'));
+            downloadInvoiceBtn.addEventListener('click', () => downloadPdf('invoice'));
+
+
+            const goBackToPackages = () => {
+                showSection(packageSelectionSection);
+            };
+
+            backToPackagesBtn.addEventListener('click', goBackToPackages);
+            
+            recalculateBtn.addEventListener('click', () => {
+                selectedPackages = [];
+                currentSubtotal = 0;
+                currentTotal = 0;
+                renderPackages();
+                nextToDetailsBtn.disabled = true;
+                showSection(packageSelectionSection);
+            });
+
+            // Init
+            renderPackages();
+            nextToDetailsBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
+
