@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Memuat Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Icon untuk tab browser -->
     <link rel="icon" href="https://placehold.co/32x32/ff3e3e/ffffff?text=HK" type="image/png">
@@ -222,25 +222,29 @@
                     <!-- Perhitungan Total Keseluruhan -->
                     <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mb-6">
                          <div class="pt-4">
-                            <div class="text-right space-y-3">
+                            <div class="text-right space-y-4">
                                 <div class="flex justify-between items-center">
                                     <p class="text-lg text-[var(--text-secondary)]">Subtotal Biaya Desain</p>
                                     <p id="summary-subtotal" class="text-xl font-bold text-[var(--text-primary)]"></p>
                                 </div>
 
                                 <!-- Diskon dan Kode Redeem -->
-                                <div id="discount-row" class="flex justify-between items-center gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <label for="discount-percent" class="text-sm text-[var(--text-secondary)]">Diskon:</label>
-                                        <input type="number" id="discount-percent" class="w-20 text-right px-2 py-1 rounded-md custom-input" placeholder="0">
-                                        <span class="font-semibold">%</span>
+                                <div id="discount-row" class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                                    <label for="discount-percent" class="text-sm text-left text-[var(--text-secondary)]">Diskon:</label>
+                                    <div class="flex items-center justify-end gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <input type="number" id="discount-percent" class="w-20 text-right px-2 py-1 rounded-md custom-input" placeholder="0">
+                                            <span class="font-semibold">%</span>
+                                        </div>
+                                        <span id="discount-amount" class="text-sm text-[var(--text-accent)] w-28 text-right">(- Rp 0)</span>
                                     </div>
-                                    <span id="discount-amount" class="text-sm text-[var(--text-accent)]">(- Rp 0)</span>
                                 </div>
-                                <div id="redeem-row" class="flex justify-between items-center gap-2">
-                                    <label for="redeem-code" class="text-sm text-[var(--text-secondary)]">Kode Redeem:</label>
-                                    <input type="number" id="redeem-code" class="w-40 text-right px-2 py-1 rounded-md custom-input" placeholder="0">
-                                    <span id="redeem-amount-display" class="text-sm text-[var(--text-accent)]">(- Rp 0)</span>
+                                <div id="redeem-row" class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                                    <label for="redeem-code" class="text-sm text-left text-[var(--text-secondary)]">Kode Redeem:</label>
+                                     <div class="flex items-center justify-end gap-4">
+                                        <input type="number" id="redeem-code" class="w-40 text-right px-2 py-1 rounded-md custom-input" placeholder="0">
+                                        <span id="redeem-amount-display" class="text-sm text-[var(--text-accent)] w-28 text-right">(- Rp 0)</span>
+                                    </div>
                                 </div>
                                 
                                 <div class="border-t border-[var(--border-secondary)] !my-4"></div>
@@ -838,6 +842,4 @@
     </script>
 </body>
 </html>
-
-
 
