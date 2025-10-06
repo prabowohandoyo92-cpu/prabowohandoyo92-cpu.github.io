@@ -139,7 +139,7 @@
 </head>
 <body>
     
-    <!-- Template Invoice PDF (tersembunyi) -->
+    <!-- PDF Invoice Template (hidden) -->
     <div id="pdf-invoice-template-wrapper" class="hidden">
         <div id="pdf-invoice-template" class="p-8 bg-white text-gray-800" style="width: 210mm; min-height: 297mm; box-sizing: border-box; display: flex; flex-direction: column;">
             <header class="flex justify-between items-start pb-4 border-b-2 border-gray-200">
@@ -198,7 +198,7 @@
                 <div id="pdf-inv-terms-history" class="mt-10 pt-6 border-t border-gray-200">
                     <h3 class="text-md font-semibold text-gray-800 mb-2">Term of Payment</h3>
                     <div id="pdf-inv-terms-list" class="space-y-1 text-sm">
-                        <!-- Riwayat pembayaran akan diisi oleh JavaScript -->
+                        <!-- Payment history will be filled by JavaScript -->
                     </div>
                     <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-300">
                         <span class="font-bold text-gray-800">Sisa Tagihan</span>
@@ -223,7 +223,7 @@
         </div>
     </div>
     
-    <!-- Template Penawaran PDF (tersembunyi) -->
+    <!-- PDF Offer Template (hidden) -->
     <div id="pdf-offer-template-wrapper" class="hidden">
         <div id="pdf-offer-template" class="p-8 bg-white text-gray-800" style="width: 210mm; min-height: 297mm; box-sizing: border-box; display: flex; flex-direction: column;">
             <header class="flex justify-between items-start pb-4 border-b-2 border-gray-200">
@@ -252,7 +252,7 @@
 
             <section class="mt-10 flex-grow">
                 <div id="pdf-offer-breakdown" class="space-y-4">
-                    <!-- Rincian paket dinamis akan masuk di sini -->
+                    <!-- Dynamic package details will go here -->
                 </div>
 
                 <div class="mt-8 flex justify-end">
@@ -278,8 +278,8 @@
 
                 <div class="mt-10 pt-6 border-t border-gray-200">
                     <h3 class="text-md font-semibold text-gray-800 mb-2">Term of Payment</h3>
-                    <div id="pdf-offer-terms-list" class="space-y-1 text-sm">
-                        <!-- Termin pembayaran dinamis -->
+                    <div id="pdf-offer-terms-list" class="text-sm">
+                        <!-- Dynamic payment terms -->
                     </div>
                 </div>
             </section>
@@ -302,7 +302,7 @@
 
     <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-6xl">
         
-        <!-- Judul Aplikasi -->
+        <!-- Application Title -->
         <header class="flex justify-between items-center mb-10 md:mb-14">
              <div class="flex items-center gap-4">
                 <div class="bg-[var(--bg-accent)] p-3 rounded-full">
@@ -317,14 +317,14 @@
 
         <main id="app" class="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-2xl shadow-2xl shadow-black/20">
 
-            <!-- Langkah 1: Pilihan Paket Desain -->
+            <!-- Step 1: Design Package Selection -->
             <section id="package-selection" class="visible-section">
                 <div class="text-center mb-8">
                     <h2 class="text-xl font-bold text-[var(--text-primary)]"><span class="bg-[var(--bg-accent)] text-white rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">1</span>Pilih Paket Desain Anda</h2>
                     <p class="mt-2 text-md text-[var(--text-secondary)]">Pilih satu atau lebih paket yang sesuai dengan kebutuhan proyek Anda.</p>
                 </div>
                 <div id="package-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    <!-- Paket akan ditambahkan di sini oleh JavaScript -->
+                    <!-- Packages will be added here by JavaScript -->
                 </div>
                 <div class="mt-10 text-center">
                     <button id="next-to-details-btn" class="py-3 px-8 rounded-lg bg-[var(--bg-accent)] text-[var(--text-on-accent)] hover:bg-[var(--bg-accent-hover)] font-semibold transition-all shadow-lg shadow-[var(--shadow-color)] disabled:bg-gray-500 disabled:shadow-none disabled:cursor-not-allowed">
@@ -333,14 +333,14 @@
                 </div>
             </section>
 
-            <!-- Langkah 2: Formulir Detail Multi-Paket -->
+            <!-- Step 2: Multi-Package Detail Form -->
             <section id="multi-details-form" class="hidden-section">
                 <div class="text-center mb-8">
                     <h2 class="text-xl font-bold text-[var(--text-primary)]"><span class="bg-[var(--bg-accent)] text-white rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">2</span>Masukkan Detail Proyek</h2>
                     <p class="mt-2 text-md text-[var(--text-secondary)]">Isi informasi untuk setiap paket yang telah Anda pilih.</p>
                 </div>
                 <div id="details-container" class="space-y-8">
-                    <!-- Formulir dinamis untuk setiap paket akan muncul di sini -->
+                    <!-- Dynamic forms for each package will appear here -->
                 </div>
                 <div class="flex items-center gap-4 mt-8">
                     <button id="back-to-packages" class="w-full text-center py-3 px-4 rounded-lg bg-gray-600 text-gray-200 hover:bg-gray-500 font-semibold transition-all">
@@ -352,15 +352,15 @@
                </div>
             </section>
 
-            <!-- Langkah 3: Hasil Perhitungan -->
+            <!-- Step 3: Calculation Results -->
             <section id="summary" class="hidden-section">
                  <div class="text-center mb-8">
                     <h2 class="text-xl font-bold text-[var(--text-primary)]"><span class="bg-[var(--bg-accent)] text-white rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">3</span>Ringkasan Penawaran</h2>
                 </div>
-                 <!-- Wrapper untuk konten yang akan diunduh -->
+                 <!-- Wrapper for content to be downloaded -->
                 <div id="offer-content" class="p-2">
                     
-                    <!-- Informasi Proyek -->
+                    <!-- Project Information -->
                     <div id="project-info" class="mb-8 p-6 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)]">
                         <h3 class="text-lg font-semibold mb-4 text-[var(--text-primary)]">Informasi Proyek</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -371,12 +371,12 @@
                         </div>
                     </div>
 
-                    <!-- Rincian Per Paket -->
+                    <!-- Per-Package Breakdown -->
                     <div id="summary-breakdown" class="space-y-6 mb-6">
-                        <!-- Rincian setiap paket akan ditampilkan di sini -->
+                        <!-- Details of each package will be displayed here -->
                     </div>
 
-                    <!-- Perhitungan Total Keseluruhan -->
+                    <!-- Overall Total Calculation -->
                     <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mb-6">
                          <div class="pt-4">
                             <div class="text-right space-y-4">
@@ -385,7 +385,7 @@
                                     <p id="summary-subtotal" class="text-xl font-bold text-[var(--text-primary)]"></p>
                                 </div>
 
-                                <!-- Diskon dan Kode Redeem -->
+                                <!-- Discount and Redeem Code -->
                                 <div id="discount-row" class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                                     <label for="discount-percent" class="text-sm text-left text-[var(--text-secondary)]">Diskon:</label>
                                     <div class="flex items-center justify-end gap-4">
@@ -448,7 +448,7 @@
                             </div>
                         </div>
                         
-                        <!-- Kolom Invoice -->
+                        <!-- Invoice Column -->
                         <div id="invoice-container" class="bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-xl p-6">
                              <h3 class="text-lg font-semibold mb-4 text-[var(--text-primary)]">Buat Invoice</h3>
                              <div class="space-y-3">
@@ -470,7 +470,7 @@
                         </div>
                     </div>
                     
-                    <!-- Informasi Pembayaran -->
+                    <!-- Payment Information -->
                     <div id="payment-info-container" class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl p-6 mt-6 text-center">
                         <h3 class="text-lg font-semibold mb-4 text-[var(--text-primary)]">Informasi Pembayaran</h3>
                         <div class="space-y-1">
@@ -506,7 +506,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Data Paket Desain
+            // Design Package Data
             const packages = [
                  {
                     name: 'Desain Konsep (Paket)',
@@ -1006,9 +1006,18 @@
 
                     const offerTermsContainer = document.getElementById('pdf-offer-terms-list');
                     offerTermsContainer.innerHTML = `
-                        <div class="flex justify-between"><p>DP 30%</p><p>${document.getElementById('summary-dp').textContent}</p></div>
-                        <div class="flex justify-between"><p>Termin 1 45%</p><p>${document.getElementById('summary-termin1').textContent}</p></div>
-                        <div class="flex justify-between"><p>Termin 2 25%</p><p>${document.getElementById('summary-termin2').textContent}</p></div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                            <span>DP 30%</span>
+                            <span class="font-semibold text-right">${document.getElementById('summary-dp').textContent}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                            <span>Termin 1 45%</span>
+                            <span class="font-semibold text-right">${document.getElementById('summary-termin1').textContent}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span>Termin 2 25%</span>
+                            <span class="font-semibold text-right">${document.getElementById('summary-termin2').textContent}</span>
+                        </div>
                     `;
 
                     offerWrapper.classList.remove('hidden');
@@ -1021,30 +1030,28 @@
                 }
 
                 try {
-                    const canvas = await html2canvas(contentToPrint, { scale: 2, backgroundColor: '#ffffff', useCORS: true, width: contentToPrint.scrollWidth, height: contentToPrint.scrollHeight });
+                    const canvas = await html2canvas(contentToPrint, {
+                        scale: 2,
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        width: contentToPrint.scrollWidth,
+                        height: contentToPrint.scrollHeight
+                    });
                     const imgData = canvas.toDataURL('image/png');
                     const { jsPDF } = window.jspdf;
-                    
-                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    const imgProps= pdf.getImageProperties(imgData);
-                    const imgWidth = pdfWidth;
-                    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-                    let heightLeft = imgHeight;
-                    let position = 0;
 
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pdfHeight;
-
-                    while (heightLeft > 0) {
-                      position = heightLeft - imgHeight;
-                      pdf.addPage();
-                      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                      heightLeft -= pdfHeight;
-                    }
+                    const pdfWidth = 210; // A4 width in mm
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                     
+                    const pdf = new jsPDF({
+                        orientation: 'p',
+                        unit: 'mm',
+                        format: [pdfWidth, pdfHeight]
+                    });
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                     pdf.save(pdfFileName);
+
                 } catch (err) {
                     console.error('Gagal membuat PDF:', err);
                 } finally {
