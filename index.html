@@ -129,18 +129,175 @@
         .no-pdf {
             /* This will be handled by JS during PDF generation */
         }
+         #pdf-invoice-template, #pdf-offer-template {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            color: #1f2937;
+            box-sizing: border-box;
+         }
     </style>
 </head>
 <body>
+    
+    <!-- Template Invoice PDF (tersembunyi) -->
+    <div id="pdf-invoice-template-wrapper" class="hidden">
+        <div id="pdf-invoice-template" class="p-8 bg-white text-gray-800" style="width: 210mm; min-height: 297mm; box-sizing: border-box; display: flex; flex-direction: column;">
+            <header class="flex justify-between items-start pb-4 border-b-2 border-gray-200">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Hasta Kencana</h1>
+                    <h2 class="text-xl font-semibold text-gray-700">Design Partners</h2>
+                    <p class="text-xs text-gray-500 mt-2">Jl. Riung Hegar Utama, Cipamokolan, Bandung</p>
+                    <p class="text-xs text-gray-500">IG. @hasta.kencana / Wa. 0822-4337-4838 / 0878-3480-0777</p>
+                </div>
+                <div class="text-right">
+                    <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">INVOICE</h1>
+                    <div class="mt-4 space-y-1">
+                        <p class="text-sm"><span class="font-semibold">Invoice #:</span> <span id="pdf-inv-number"></span></p>
+                        <p class="text-sm"><span class="font-semibold">Tanggal:</span> <span id="pdf-inv-date"></span></p>
+                    </div>
+                </div>
+            </header>
 
-    <!-- Kop Surat untuk PDF (tersembunyi di halaman web) -->
-    <div id="pdf-header" class="hidden p-8">
-        <div class="text-right">
-            <h1 class="text-2xl font-bold text-gray-800">Hasta Kencana Design Partners</h1>
-            <p class="text-sm text-gray-600">Jl. Riung Hegar Utama, Cipamokolan, Bandung</p>
-            <p class="text-sm text-gray-600">IG. @hasta.kencana / Wa. 0822-4337-4838 / 0878-3480-0777</p>
+            <section class="mt-8">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Ditagihkan Kepada:</h3>
+                <div class="mt-2">
+                    <p id="pdf-inv-client-name" class="font-bold text-lg"></p>
+                    <p id="pdf-inv-client-address" class="text-gray-600 text-sm"></p>
+                </div>
+            </section>
+            
+            <section class="mt-10">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-sm font-semibold text-gray-600 uppercase">Deskripsi</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600 uppercase text-right">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td id="pdf-inv-item-description" class="p-3"></td>
+                            <td id="pdf-inv-item-amount" class="p-3 text-right"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            
+                <div class="mt-8 flex justify-end">
+                    <div class="w-full max-w-xs space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span id="pdf-inv-subtotal" class="font-semibold"></span>
+                        </div>
+                         <div class="flex justify-between border-t border-gray-200 pt-3">
+                            <span class="font-bold text-xl text-gray-800">Total</span>
+                            <span id="pdf-inv-total" class="font-bold text-xl text-red-500"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pdf-inv-terms-history" class="mt-10 pt-6 border-t border-gray-200">
+                    <h3 class="text-md font-semibold text-gray-800 mb-2">Term of Payment</h3>
+                    <div id="pdf-inv-terms-list" class="space-y-1 text-sm">
+                        <!-- Riwayat pembayaran akan diisi oleh JavaScript -->
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-300">
+                        <span class="font-bold text-gray-800">Sisa Tagihan</span>
+                        <span id="pdf-inv-sisa-tagihan" class="font-bold text-red-500"></span>
+                    </div>
+                </div>
+            </section>
+            
+            <footer class="mt-auto pt-6 border-t border-gray-200">
+                 <div>
+                    <h3 class="text-md font-semibold text-gray-800 mb-2">Informasi Pembayaran</h3>
+                    <div class="text-sm text-gray-600">
+                        <p><span class="font-semibold">Bank:</span> BCA</p>
+                        <p><span class="font-semibold">Atas Nama:</span> Handoyo Dwi Prabowo</p>
+                        <p><span class="font-semibold">No. Rekening:</span> 775-139-0398</p>
+                    </div>
+                </div>
+                <div class="text-center text-xs text-gray-400 mt-8">
+                    <p>Terima kasih atas kepercayaan Anda.</p>
+                </div>
+            </footer>
         </div>
-        <div class="mt-4 border-b-2 border-[#ff3e3e]"></div>
+    </div>
+    
+    <!-- Template Penawaran PDF (tersembunyi) -->
+    <div id="pdf-offer-template-wrapper" class="hidden">
+        <div id="pdf-offer-template" class="p-8 bg-white text-gray-800" style="width: 210mm; min-height: 297mm; box-sizing: border-box; display: flex; flex-direction: column;">
+            <header class="flex justify-between items-start pb-4 border-b-2 border-gray-200">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Hasta Kencana</h1>
+                    <h2 class="text-xl font-semibold text-gray-700">Design Partners</h2>
+                    <p class="text-xs text-gray-500 mt-2">Jl. Riung Hegar Utama, Cipamokolan, Bandung</p>
+                    <p class="text-xs text-gray-500">IG. @hasta.kencana / Wa. 0822-4337-4838 / 0878-3480-0777</p>
+                </div>
+                <div class="text-right">
+                    <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">PENAWARAN</h1>
+                    <div class="mt-4 space-y-1">
+                        <p class="text-sm"><span class="font-semibold">No. Penawaran:</span> <span id="pdf-offer-number"></span></p>
+                        <p class="text-sm"><span class="font-semibold">Tanggal:</span> <span id="pdf-offer-date"></span></p>
+                    </div>
+                </div>
+            </header>
+
+            <section class="mt-8">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Penawaran Untuk:</h3>
+                <div class="mt-2">
+                    <p id="pdf-offer-client-name" class="font-bold text-lg"></p>
+                    <p id="pdf-offer-client-address" class="text-gray-600 text-sm"></p>
+                </div>
+            </section>
+
+            <section class="mt-10 flex-grow">
+                <div id="pdf-offer-breakdown" class="space-y-4">
+                    <!-- Rincian paket dinamis akan masuk di sini -->
+                </div>
+
+                <div class="mt-8 flex justify-end">
+                    <div class="w-full max-w-sm space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span id="pdf-offer-subtotal" class="font-semibold"></span>
+                        </div>
+                        <div id="pdf-offer-discount-row" class="flex justify-between">
+                            <span class="text-gray-600">Diskon</span>
+                            <span id="pdf-offer-discount" class="font-semibold text-red-500"></span>
+                        </div>
+                        <div id="pdf-offer-redeem-row" class="flex justify-between">
+                            <span class="text-gray-600">Redeem</span>
+                            <span id="pdf-offer-redeem" class="font-semibold text-red-500"></span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-200 pt-3">
+                            <span class="font-bold text-xl text-gray-800">Total Akhir</span>
+                            <span id="pdf-offer-total" class="font-bold text-xl text-red-500"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-6 border-t border-gray-200">
+                    <h3 class="text-md font-semibold text-gray-800 mb-2">Term of Payment</h3>
+                    <div id="pdf-offer-terms-list" class="space-y-1 text-sm">
+                        <!-- Termin pembayaran dinamis -->
+                    </div>
+                </div>
+            </section>
+
+            <footer class="mt-auto pt-6 border-t border-gray-200">
+                 <div>
+                    <h3 class="text-md font-semibold text-gray-800 mb-2">Informasi Pembayaran</h3>
+                    <div class="text-sm text-gray-600">
+                        <p><span class="font-semibold">Bank:</span> BCA</p>
+                        <p><span class="font-semibold">Atas Nama:</span> Handoyo Dwi Prabowo</p>
+                        <p><span class="font-semibold">No. Rekening:</span> 775-139-0398</p>
+                    </div>
+                </div>
+                <div class="text-center text-xs text-gray-400 mt-8">
+                    <p>Terima kasih atas kesempatan yang diberikan.</p>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-6xl">
@@ -723,90 +880,179 @@
             discountPercentInput.addEventListener('input', updateFinalTotal);
             redeemCodeInput.addEventListener('input', updateFinalTotal);
             
-            const downloadPdf = async (type) => {
+             const downloadPdf = async (type) => {
                 const button = type === 'offer' ? downloadOfferBtn : downloadInvoiceBtn;
-                const offerContent = document.getElementById('offer-content');
-                const header = document.getElementById('pdf-header');
                 const btnOriginalText = button.innerHTML;
                 button.innerHTML = '<span>Mempersiapkan PDF...</span>';
                 button.disabled = true;
-                
-                document.documentElement.setAttribute('data-theme', 'light');
-                const lightStyles = `
-                    :root {
-                        --bg-primary: #f9fafb; --bg-secondary: #ffffff; --bg-tertiary: #f3f4f6;
-                        --text-primary: #1f2937; --text-secondary: #6b7280; --border-primary: #e5e7eb;
-                        --border-secondary: #d1d5db; --project-info-bg: #f3f4f6;
+
+                let contentToPrint;
+                let pdfFileName;
+
+                if (type === 'invoice') {
+                    if (!invoiceItemSelect.value) {
+                        console.error("Silakan pilih item tagihan terlebih dahulu.");
+                        button.innerHTML = btnOriginalText;
+                        button.disabled = false;
+                        return;
                     }
-                    .custom-input { background-color: #ffffff; border: 1px solid #d1d5db; color: #1f2937; }
-                `;
-                const style = document.createElement('style');
-                style.id = 'temp-pdf-style';
-                style.innerHTML = lightStyles;
-                document.head.appendChild(style);
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-
-                const pdfContainer = document.createElement('div');
-                pdfContainer.style.width = offerContent.offsetWidth + 'px';
-                
-                const clonedHeader = header.cloneNode(true);
-                clonedHeader.classList.remove('hidden');
-                const clonedContent = offerContent.cloneNode(true);
-                
-                ['project-name', 'project-number', 'project-address', 'project-owner', 'invoice-date', 'invoice-number'].forEach(id => {
-                    const originalInput = document.getElementById(id);
-                    const clonedInput = clonedContent.querySelector(`#${id}`);
-                    if (clonedInput && originalInput) {
-                        const staticDiv = document.createElement('div');
-                        staticDiv.className = `w-full px-3 py-2 rounded-md bg-gray-100 text-gray-800`;
-                        staticDiv.style.height = originalInput.offsetHeight + 'px';
-                        staticDiv.style.display = 'flex';
-                        staticDiv.style.alignItems = 'center';
-                        staticDiv.textContent = originalInput.value || `(${originalInput.placeholder})`;
-                        clonedInput.parentNode.replaceChild(staticDiv, clonedInput);
-                    }
-                });
-                
-                if ((parseFloat(discountPercentInput.value) || 0) === 0) clonedContent.querySelector('#discount-row')?.remove();
-                if ((parseFloat(redeemCodeInput.value) || 0) === 0) clonedContent.querySelector('#redeem-row')?.remove();
-
-                clonedContent.querySelectorAll('.no-pdf').forEach(el => el.remove());
-
-                if (type === 'offer') {
-                    // Untuk PDF Penawaran: Hapus kolom invoice dan info pembayaran, tampilkan termin
-                    clonedContent.querySelector('#invoice-container')?.remove();
-                    clonedContent.querySelector('#payment-info-container')?.remove();
                     
-                    // Sesuaikan grid agar termin menjadi kolom penuh
-                    const termContainer = clonedContent.querySelector('#term-and-invoice-container');
-                    if (termContainer) {
-                        termContainer.classList.remove('md:grid-cols-2');
-                        termContainer.classList.add('md:grid-cols-1');
+                    const invoiceWrapper = document.getElementById('pdf-invoice-template-wrapper');
+                    
+                    document.getElementById('pdf-inv-number').textContent = document.getElementById('invoice-number').value || 'N/A';
+                    document.getElementById('pdf-inv-date').textContent = document.getElementById('invoice-date').value || 'N/A';
+                    document.getElementById('pdf-inv-client-name').textContent = document.getElementById('project-owner').value || 'N/A';
+                    document.getElementById('pdf-inv-client-address').textContent = document.getElementById('project-address').value || '-';
+                    
+                    const selectedOption = invoiceItemSelect.options[invoiceItemSelect.selectedIndex];
+                    const amount = parseFloat(selectedOption.value);
+                    document.getElementById('pdf-inv-item-description').textContent = selectedOption.text;
+                    document.getElementById('pdf-inv-item-amount').textContent = formatCurrency(amount);
+                    document.getElementById('pdf-inv-subtotal').textContent = formatCurrency(amount);
+                    document.getElementById('pdf-inv-total').textContent = formatCurrency(amount);
+                    
+                    const termsListContainer = document.getElementById('pdf-inv-terms-list');
+                    termsListContainer.innerHTML = ''; 
+                    let totalPaid = 0;
+
+                    const paymentTerms = [
+                        { label: 'DP 30%', checkbox: paymentTermCheckboxes[0] },
+                        { label: 'Termin 1 45%', checkbox: paymentTermCheckboxes[1] },
+                        { label: 'Termin 2 25%', checkbox: paymentTermCheckboxes[2] },
+                    ];
+
+                    paymentTerms.forEach(term => {
+                        const termAmount = parseFloat(term.checkbox.dataset.amount) || 0;
+                        const isPaid = term.checkbox.checked;
+                        if(isPaid) {
+                            totalPaid += termAmount;
+                        }
+
+                        const statusClass = isPaid ? 'text-green-600' : 'text-gray-500';
+                        const statusText = isPaid ? '[LUNAS]' : '[BELUM DIBAYAR]';
+
+                        const rowHtml = `
+                            <div class="flex justify-between items-center py-1">
+                                <span>${term.label}</span>
+                                <div class="flex items-center gap-4 text-right">
+                                    <span class="w-28">${formatCurrency(termAmount)}</span>
+                                    <span class="font-semibold ${statusClass} w-24">${statusText}</span>
+                                </div>
+                            </div>
+                        `;
+                        termsListContainer.innerHTML += rowHtml;
+                    });
+                    
+                    const sisaTagihan = currentTotal - totalPaid;
+                    document.getElementById('pdf-inv-sisa-tagihan').textContent = formatCurrency(sisaTagihan < 0 ? 0 : sisaTagihan);
+
+                    invoiceWrapper.classList.remove('hidden');
+                    invoiceWrapper.style.position = 'absolute';
+                    invoiceWrapper.style.left = '-9999px';
+                    invoiceWrapper.style.top = '0';
+                    
+                    contentToPrint = document.getElementById('pdf-invoice-template');
+                    pdfFileName = 'invoice-hasta-kencana.pdf';
+                } else {
+                    const offerWrapper = document.getElementById('pdf-offer-template-wrapper');
+                    
+                    document.getElementById('pdf-offer-number').textContent = document.getElementById('project-number').value || 'N/A';
+                    document.getElementById('pdf-offer-date').textContent = document.getElementById('invoice-date').value || 'N/A';
+                    document.getElementById('pdf-offer-client-name').textContent = document.getElementById('project-owner').value || 'N/A';
+                    document.getElementById('pdf-offer-client-address').textContent = document.getElementById('project-address').value || '-';
+
+                    const breakdownContainer = document.getElementById('pdf-offer-breakdown');
+                    breakdownContainer.innerHTML = '';
+                    selectedPackages.forEach(pkg => {
+                        const features = pkg.dynamicFeatures || pkg.features;
+                        const featuresHTML = features.map(f => `<li class="text-xs text-gray-500 ml-4">${f}</li>`).join('');
+                        const itemHTML = `
+                            <div class="pb-2 border-b border-gray-100">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">${pkg.name}</p>
+                                        <p class="text-xs text-gray-500">${pkg.calculationDetail}</p>
+                                    </div>
+                                    <p class="font-semibold text-gray-800">${formatCurrency(pkg.calculatedCost)}</p>
+                                </div>
+                                <ul class="list-disc list-inside mt-1">${featuresHTML}</ul>
+                            </div>
+                        `;
+                        breakdownContainer.innerHTML += itemHTML;
+                    });
+
+                    document.getElementById('pdf-offer-subtotal').textContent = formatCurrency(currentSubtotal);
+                    const discountPercent = parseFloat(discountPercentInput.value) || 0;
+                    const redeemAmountVal = parseFloat(redeemCodeInput.value) || 0;
+                    const discountAmountVal = currentSubtotal * (discountPercent / 100);
+
+                    const discountRow = document.getElementById('pdf-offer-discount-row');
+                    if (discountAmountVal > 0) {
+                        document.getElementById('pdf-offer-discount').textContent = `(-${formatCurrency(discountAmountVal)})`;
+                        discountRow.style.display = 'flex';
+                    } else {
+                        discountRow.style.display = 'none';
                     }
+
+                    const redeemRow = document.getElementById('pdf-offer-redeem-row');
+                    if (redeemAmountVal > 0) {
+                        document.getElementById('pdf-offer-redeem').textContent = `(-${formatCurrency(redeemAmountVal)})`;
+                        redeemRow.style.display = 'flex';
+                    } else {
+                        redeemRow.style.display = 'none';
+                    }
+                    
+                    document.getElementById('pdf-offer-total').textContent = formatCurrency(currentTotal);
+
+                    const offerTermsContainer = document.getElementById('pdf-offer-terms-list');
+                    offerTermsContainer.innerHTML = `
+                        <div class="flex justify-between"><p>DP 30%</p><p>${document.getElementById('summary-dp').textContent}</p></div>
+                        <div class="flex justify-between"><p>Termin 1 45%</p><p>${document.getElementById('summary-termin1').textContent}</p></div>
+                        <div class="flex justify-between"><p>Termin 2 25%</p><p>${document.getElementById('summary-termin2').textContent}</p></div>
+                    `;
+
+                    offerWrapper.classList.remove('hidden');
+                    offerWrapper.style.position = 'absolute';
+                    offerWrapper.style.left = '-9999px';
+                    offerWrapper.style.top = '0';
+
+                    contentToPrint = document.getElementById('pdf-offer-template');
+                    pdfFileName = 'penawaran-hasta-kencana.pdf';
                 }
 
-                pdfContainer.appendChild(clonedHeader);
-                pdfContainer.appendChild(clonedContent);
-                document.body.appendChild(pdfContainer);
-
                 try {
-                    const canvas = await html2canvas(pdfContainer, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+                    const canvas = await html2canvas(contentToPrint, { scale: 2, backgroundColor: '#ffffff', useCORS: true, width: contentToPrint.scrollWidth, height: contentToPrint.scrollHeight });
                     const imgData = canvas.toDataURL('image/png');
                     const { jsPDF } = window.jspdf;
                     
-                    const pdfWidth = 210; 
-                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfWidth, pdfHeight] });
+                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgProps= pdf.getImageProperties(imgData);
+                    const imgWidth = pdfWidth;
+                    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pdfHeight;
+
+                    while (heightLeft > 0) {
+                      position = heightLeft - imgHeight;
+                      pdf.addPage();
+                      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                      heightLeft -= pdfHeight;
+                    }
                     
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(type === 'offer' ? 'penawaran-hasta-kencana.pdf' : 'invoice-hasta-kencana.pdf');
+                    pdf.save(pdfFileName);
                 } catch (err) {
                     console.error('Gagal membuat PDF:', err);
                 } finally {
-                    document.body.removeChild(pdfContainer);
-                    document.getElementById('temp-pdf-style').remove();
-                    document.documentElement.setAttribute('data-theme', 'dark');
+                    if (type === 'invoice') {
+                        document.getElementById('pdf-invoice-template-wrapper').classList.add('hidden');
+                    } else {
+                        document.getElementById('pdf-offer-template-wrapper').classList.add('hidden');
+                    }
                     button.innerHTML = btnOriginalText;
                     button.disabled = false;
                 }
